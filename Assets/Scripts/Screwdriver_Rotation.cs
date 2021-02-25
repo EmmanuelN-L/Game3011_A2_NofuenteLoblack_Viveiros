@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Screwdriver_Rotation : MonoBehaviour
 {
-    public GameObject Pivot;
-
     float smooth = 2.0f;
     float tiltAngle = 90.0f;
 
