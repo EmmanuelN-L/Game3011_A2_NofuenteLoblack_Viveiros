@@ -7,8 +7,8 @@ using UnityEngine.Audio;
 public class PickRotator : MonoBehaviour
 {
     // Difficulty - Needs Work
-    public int LockLevel = 5;
-    public int lockPickSkill = 30;
+    public int LockLevel = 0;
+    public int lockPickSkill = 10;
     float LeverageScaler = 0.5f;
     float Leverage;
 
