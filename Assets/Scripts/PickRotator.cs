@@ -13,7 +13,8 @@ public class PickRotator : MonoBehaviour
     float Leverage;
 
     // Timer Variables
-    public TMPro.TextMeshProUGUI Timer;
+    public TMPro.TextMeshProUGUI TimerText;
+    public TMPro.TextMeshProUGUI PickHPText;
     public float LockPickTime = 60;
     float TimeThreshold = 0f;
 
@@ -23,11 +24,13 @@ public class PickRotator : MonoBehaviour
     public AudioClip LockpickClip;
 
     // Pick Variables
-    float PickHealth;
+    public GameObject Pick;
+    public float PickHealth;
     float AmountOfPicks;
 
     Vector3 BreakTarget;
     Vector3 HookTarget;
+    bool IsSnapPlaying = false;
 
     float MouseClamp;
     float MousePercentage;
@@ -47,12 +50,12 @@ public class PickRotator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        LockTimer();
+        UpdateUiText();
         rotatePivot();
         SweetSpotLocater();
     }
 
-    void LockTimer()
+    void UpdateUiText()
     {
         TimeThreshold += Time.deltaTime;
         if (TimeThreshold >= 1)
@@ -60,7 +63,8 @@ public class PickRotator : MonoBehaviour
             LockPickTime--;
             TimeThreshold = 0f;
         }
-        Timer.text = "Time: " + LockPickTime;
+        TimerText.text = "Time: " + LockPickTime;
+        PickHPText.text = "PickHealth: " + PickHealth;
     }
 
     void PlayAudio(AudioClip clip)
@@ -77,18 +81,21 @@ public class PickRotator : MonoBehaviour
 
     void rotatePivot()
     {
-        // Get Mouse X Position
-        MouseX = Input.mousePosition.x;
-        float CenterMouseX = MouseX - (Screen.width / 2);
-        MousePercentage = (CenterMouseX / (Screen.width / 3));
-        // Clamp Mouse Percent
-        MouseClamp = Mathf.Clamp(MousePercentage, -1, 1);
-        //The Angle
-        float tiltAroundZ = MouseClamp * Angle;
-        //The Target Angle For Rotation
-        Quaternion target = Quaternion.Euler(0, 0, tiltAroundZ);
-        //Apply The Rotation To Our GameObject
-        transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * smooth);
+        if(!IsSnapPlaying)
+        {
+            // Get Mouse X Position
+            MouseX = Input.mousePosition.x;
+            float CenterMouseX = MouseX - (Screen.width / 2);
+            MousePercentage = (CenterMouseX / (Screen.width / 3));
+            // Clamp Mouse Percent
+            MouseClamp = Mathf.Clamp(MousePercentage, -1, 1);
+            //The Angle
+            float tiltAroundZ = MouseClamp * Angle;
+            //The Target Angle For Rotation
+            Quaternion target = Quaternion.Euler(0, 0, tiltAroundZ);
+            //Apply The Rotation To Our GameObject
+            transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * smooth);
+        }
     }
 
     void CreateNewSpot()
@@ -128,18 +135,58 @@ public class PickRotator : MonoBehaviour
         }
     }
 
-    void SnapPick()
+    public void SnapPick()
     {
-        if(PickHealth <= 0)
+        if (PickHealth <= 0 && IsSnapPlaying == false)
         {
-            BreakTarget = transform.position;
+            StartCoroutine(ResetPick());
         }
     }
 
-    private IEnumerator BreakPick(float wait)
+    private IEnumerator ResetPick()
     {
-        yield return null;
-        transform.position = Vector3.Lerp(transform.position, BreakTarget, Time.deltaTime * smooth);
+        IsSnapPlaying = true;
+        var StartPos = new Vector3(0f, 0f, 4.6f);
+        var RiseLeftPos = new Vector3(-2.0f, 1.0f, StartPos.z);
+        var RiseRightPos = new Vector3(2.0f, 1.0f, StartPos.z);
+        var FallPos = new Vector3(StartPos.x, StartPos.y - 5.0f, StartPos.z);
+        var SpawnPos = new Vector3(StartPos.x, StartPos.y + 5f, StartPos.z);
+
+        if(MouseClamp < 0)
+        {
+            while (Vector3.Distance(Pick.transform.position, RiseLeftPos) > 0.5f)
+            {
+                Pick.transform.position = Vector3.Lerp(Pick.transform.position, RiseLeftPos, Time.deltaTime * 2f);
+                yield return null;
+            }
+
+        }
+        else
+        {
+            while (Vector3.Distance(Pick.transform.position, RiseRightPos) > 0.5f)
+            {
+                Pick.transform.position = Vector3.Lerp(Pick.transform.position, RiseRightPos, Time.deltaTime * 2f);
+                yield return null;
+            }
+        }
+
+        while (Vector3.Distance(Pick.transform.position, FallPos) > 0.2f)
+        {
+            Pick.transform.position = Vector3.Lerp(Pick.transform.position, FallPos, Time.deltaTime * 1f);
+            yield return null;
+        }
+
+        //Set Pick Above Lock
+        Pick.transform.position = SpawnPos;
+
+        while (Vector3.Distance(Pick.transform.position, StartPos) > 0.05f)
+        {
+            Pick.transform.position = Vector3.Lerp(Pick.transform.position, StartPos, Time.deltaTime * 4f);
+            yield return null;
+        }
+
+        IsSnapPlaying = false;
+        PickHealth = 100;
     }
 
 }
