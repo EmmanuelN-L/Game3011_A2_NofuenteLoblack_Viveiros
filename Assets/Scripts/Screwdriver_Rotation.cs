@@ -8,7 +8,7 @@ public class Screwdriver_Rotation : MonoBehaviour
 
     float DamageMuliplier = 40.0f;
     float smooth = 5.0f;
-    float tiltAngle = 90.0f;
+    public float tiltAngle = 90.0f;
 
     public float RotateIncrement;
     public float RotateValue;

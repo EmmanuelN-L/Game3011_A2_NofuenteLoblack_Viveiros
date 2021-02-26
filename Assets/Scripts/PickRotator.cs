@@ -98,7 +98,7 @@ public class PickRotator : MonoBehaviour
         }
     }
 
-    void CreateNewSpot()
+    public void CreateNewSpot()
     {
         float randSpot = Random.Range(-90f, 90f);
         sweetSpotVal = randSpot;
