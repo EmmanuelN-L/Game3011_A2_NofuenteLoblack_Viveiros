@@ -4,12 +4,20 @@ using UnityEngine;
 
 public class Screwdriver_Rotation : MonoBehaviour
 {
-    float smooth = 2.0f;
+    float smooth = 5.0f;
     float tiltAngle = 90.0f;
-
     float Rotator = 0.0f;
+
+    public float RotateIncrement;
+    public float RotateValue;
+   
     private void Update()
     {
+
+        RotateIncrement = Input.GetAxis("Horizontal") * Time.deltaTime;
+        RotateValue += RotateIncrement;
+        RotateValue = Mathf.Clamp(RotateValue, -1, 0);
+        
         if (Input.GetKeyDown("a"))
         {
             Rotator = -1;
@@ -21,7 +29,7 @@ public class Screwdriver_Rotation : MonoBehaviour
         }
 
         // Smoothly tilts a transform towards a target rotation.
-        float tiltAroundZ = Rotator * tiltAngle;
+        float tiltAroundZ = RotateValue * tiltAngle;
 
         // Rotate the cube by converting the angles into a quaternion.
         Quaternion target = Quaternion.Euler(0, 0, tiltAroundZ);

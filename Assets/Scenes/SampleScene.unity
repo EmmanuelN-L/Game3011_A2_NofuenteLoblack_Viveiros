@@ -445,6 +445,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecc37079c5a873a46bbd6ce9512e31cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RotateIncrement: 0
+  RotateValue: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,7 +643,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89f0599ddb447094287a668ee5bb2abf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 750
+  MouseClamp: 0
+  MousePercentage: 0
+  MouseX: 0
 --- !u!1 &1704048553
 GameObject:
   m_ObjectHideFlags: 0
@@ -804,7 +808,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5737c411fd4c05e4ba692ddea8ec1ef8, type: 3}
       propertyPath: m_Name
-      value: ScrewDriver (1) 1
+      value: ScrewDriver
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5737c411fd4c05e4ba692ddea8ec1ef8, type: 3}
