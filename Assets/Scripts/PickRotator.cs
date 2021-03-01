@@ -7,14 +7,19 @@ using UnityEngine.Audio;
 public class PickRotator : MonoBehaviour
 {
     // Difficulty - Needs Work
+    public GameDifficulty game;
     public int LockLevel = 0;
-    public int lockPickSkill = 10;
+    public float lockPickSkill = 5;
     float LeverageScaler = 0.5f;
-    float Leverage;
+    public float Leverage;
+    public bool isConditionReached = false;
+    public float baseValue = 5f;
 
     // Timer Variables
     public TMPro.TextMeshProUGUI TimerText;
     public TMPro.TextMeshProUGUI PickHPText;
+    public TMPro.TextMeshProUGUI numOfPicksText;
+    public TMPro.TextMeshProUGUI playerLevelText;
     public float LockPickTime = 60;
     float TimeThreshold = 0f;
 
@@ -26,7 +31,7 @@ public class PickRotator : MonoBehaviour
     // Pick Variables
     public GameObject Pick;
     public float PickHealth;
-    float AmountOfPicks;
+    public float AmountOfPicks = 10f;
 
     Vector3 BreakTarget;
     Vector3 HookTarget;
@@ -39,13 +44,20 @@ public class PickRotator : MonoBehaviour
     public float sweetSpotVal;
     float Angle = -90f;
     float smooth = 5.0f;
-
+    List<float> usedValues = new List<float>();
+    
     // Start is called just before any of the update methods is called the first time
     private void Start()
     {
-        Leverage = (lockPickSkill * LeverageScaler) - (LockLevel * LeverageScaler);
+        Leverage = baseValue + ((lockPickSkill * LeverageScaler) - (LockLevel * LeverageScaler));
         foundSpot = false;
         CreateNewSpot();
+        
+    }
+
+    public void LeverageCalculator()
+    {
+        Leverage = baseValue + ((lockPickSkill * LeverageScaler) - (LockLevel * LeverageScaler));
     }
     // Update is called once per frame
     void Update()
@@ -62,9 +74,18 @@ public class PickRotator : MonoBehaviour
         {
             LockPickTime--;
             TimeThreshold = 0f;
+            TimerText.text = "Time: " + LockPickTime;
+            
+            
+        }       
+        if(LockPickTime <=0 && !isConditionReached)
+        {
+            game.LoseCondition();
+            isConditionReached = true;
         }
-        TimerText.text = "Time: " + LockPickTime;
-        PickHPText.text = "PickHealth: " + PickHealth;
+        numOfPicksText.text = "Picks left: " + AmountOfPicks;
+        PickHPText.text = "Pick Health: " + PickHealth;
+        playerLevelText.text = "Player Level: " + lockPickSkill;
     }
 
     void PlayAudio(AudioClip clip)
@@ -101,6 +122,10 @@ public class PickRotator : MonoBehaviour
     public void CreateNewSpot()
     {
         float randSpot = Random.Range(-90f, 90f);
+        while(usedValues.Contains(randSpot))
+        {
+            randSpot = Random.Range(-90f, 90f);
+        }
         sweetSpotVal = randSpot;
     }
 
@@ -139,6 +164,13 @@ public class PickRotator : MonoBehaviour
     {
         if (PickHealth <= 0 && IsSnapPlaying == false)
         {
+            
+            AmountOfPicks--;
+            if(AmountOfPicks<0 && !isConditionReached)
+            {
+                game.LoseCondition();
+                isConditionReached = true;
+            }
             StartCoroutine(ResetPick());
         }
     }
